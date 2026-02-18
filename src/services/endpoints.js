@@ -88,68 +88,76 @@ export const getDailyGroupAttendance = ({ date, groupCode }) =>
 // Send exam degrees (WhatsApp-bot on its own server)
 // Send exam degrees (WhatsApp-bot on its own server)
 export const sendExamDegreesNotification = (data) => {
-  console.log('Received data:', data);
+  console.log('البيانات المستلمة:', data);
   
-  // Format the message with exam results
+  // تنسيق الرسالة مع نتائج الامتحان
   const formatMessage = (examData) => {
     const { studentName, obtainedScore, totalScore, subjectName } = examData;
+    const percentage = ((obtainedScore / totalScore) * 100).toFixed(1);
     
-    return `*Exam Results Notification* 📚
+    return `*نتيجة الامتحان* 📚
 
-Dear Parent,
-Your child ${studentName} has received their exam results:
+عزيزي ولي الأمر،
+الطالب ${studentName} 
 
-📝 Subject: ${subjectName}
-📊 Score: ${obtainedScore}/${totalScore}
-📈 Percentage: ${((obtainedScore / totalScore) * 100).toFixed(1)}%
+📝 المادة: ${subjectName}
+📊 الدرجة: ${obtainedScore}/${totalScore}
+📈 النسبة المئوية: ${percentage}%
+${obtainedScore >= totalScore/2 ? '✅ ناجح' : '📝 يحتاج إلى تحسين'}
 
-Thank you for your continued support!
+مع الشكر،
+إدارة مستر كريم
 `;
   };
 
-  // Function to open WhatsApp with the message
+  // دالة فتح واتساب مع الرسالة
   const openWhatsApp = (phoneNumber, message) => {
-    // Remove any non-digit characters from phone number
+    // تنظيف رقم الهاتف من أي رموز غير رقمية
     const cleanNumber = phoneNumber.replace(/\D/g, '');
     
-    // Check if it's a mobile number (has '10' after country code)
-    // For Egyptian numbers starting with 2010...
-    if (cleanNumber.startsWith('2010')) {
-      // Create WhatsApp URL
+    // التحقق من صحة الرقم (مصري يبدأ بـ 2010...)
+    if (cleanNumber.startsWith('2010') && cleanNumber.length === 12) {
+      // إنشاء رابط واتساب
       const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
       
-      // Open in new tab/window
+      // فتح في تبويب جديد
       window.open(whatsappUrl, '_blank');
+      console.log('تم فتح واتساب للرقم:', cleanNumber);
     } else {
-      console.log('Not a mobile number or invalid format:', phoneNumber);
+      console.log('رقم هاتف غير صالح:', phoneNumber);
     }
   };
 
-  // Handle different data structures
+  // معالجة هياكل البيانات المختلفة
   let examResultsArray = [];
   
-  // Case 1: data is already an array
+  // الحالة 1: البيانات عبارة عن مصفوفة مباشرة
   if (Array.isArray(data)) {
     examResultsArray = data;
   } 
-  // Case 2: data has examResults property that is an array
+  // الحالة 2: البيانات تحتوي على خاصية examResults وهي مصفوفة
   else if (data && data.examResults && Array.isArray(data.examResults)) {
     examResultsArray = data.examResults;
   }
-  // Case 3: data is a single exam result object (not in array)
+  // الحالة 3: البيانات عبارة عن كائن واحد لنتيجة امتحان
   else if (data && typeof data === 'object' && data.studentName) {
     examResultsArray = [data];
   }
 
-  // Process each exam result
+  // معالجة كل نتيجة امتحان
   if (examResultsArray.length > 0) {
-    examResultsArray.forEach(examResult => {
-      const message = formatMessage(examResult);
-      console.log('Message:', message, 'for parent number:', examResult.parentNumber);
-      openWhatsApp(examResult.parentNumber, message);
+    examResultsArray.forEach((examResult, index) => {
+      // تأخير بين الرسائل لتجنب الحظر
+      setTimeout(() => {
+        const message = formatMessage(examResult);
+        console.log('الرسالة:', message, 'لرقم ولي الأمر:', examResult.parentNumber);
+        openWhatsApp(examResult.parentNumber, message);
+      }, index * 2000); // تأخير ثانيتين بين كل رسالة
     });
+    
+    console.log(`جاري إرسال ${examResultsArray.length} نتيجة امتحان...`);
   } else {
-    console.log('No valid exam results to send');
+    console.log('لا توجد نتائج امتحان صالحة للإرسال');
   }
 };
 // Update a student by ID
