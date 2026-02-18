@@ -344,16 +344,17 @@ const handleScan = async (e) => {
   // Effects
   useEffect(() => {
     fetchGroups();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => timeoutsRef.current.forEach(clearTimeout);
   }, []);
 
   useEffect(() => {
     if (filters.groupCode) fetchDaily();
-  }, [filters.date, filters.groupCode]);
+  }, [fetchDaily, filters.date, filters.groupCode]);
 
   useEffect(() => {
     if (filters.groupCode) fetchMonthly();
-  }, [filters.month, filters.year, filters.groupCode]);
+  }, [filters.month, filters.year, filters.groupCode, fetchMonthly]);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
