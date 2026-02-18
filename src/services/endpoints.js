@@ -88,7 +88,7 @@ export const getDailyGroupAttendance = ({ date, groupCode }) =>
 // Send exam degrees (WhatsApp-bot on its own server)
 // Send exam degrees (WhatsApp-bot on its own server)
 export const sendExamDegreesNotification = (data) => {
-  console.log(data);
+  console.log('Received data:', data);
   
   // Format the message with exam results
   const formatMessage = (examData) => {
@@ -125,14 +125,31 @@ Thank you for your continued support!
     }
   };
 
-  // Process each exam result in the array
-  if (Array.isArray(data) && data.length > 0) {
-    data.forEach(examResult => {
+  // Handle different data structures
+  let examResultsArray = [];
+  
+  // Case 1: data is already an array
+  if (Array.isArray(data)) {
+    examResultsArray = data;
+  } 
+  // Case 2: data has examResults property that is an array
+  else if (data && data.examResults && Array.isArray(data.examResults)) {
+    examResultsArray = data.examResults;
+  }
+  // Case 3: data is a single exam result object (not in array)
+  else if (data && typeof data === 'object' && data.studentName) {
+    examResultsArray = [data];
+  }
+
+  // Process each exam result
+  if (examResultsArray.length > 0) {
+    examResultsArray.forEach(examResult => {
       const message = formatMessage(examResult);
+      console.log('Message:', message, 'for parent number:', examResult.parentNumber);
       openWhatsApp(examResult.parentNumber, message);
     });
   } else {
-    console.log('No exam results to send');
+    console.log('No valid exam results to send');
   }
 };
 // Update a student by ID
