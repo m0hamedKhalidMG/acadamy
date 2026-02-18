@@ -95,7 +95,7 @@ export const sendExamDegreesNotification = (data) => {
     const { studentName, obtainedScore, totalScore, subjectName } = examData;
     const percentage = ((obtainedScore / totalScore) * 100).toFixed(1);
     
-    return `*نتيجة الامتحان* 
+    return `*نتيجة الامتحان* 📚
 
 عزيزي ولي الأمر،
 الطالب ${studentName} 
