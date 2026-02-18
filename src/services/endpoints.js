@@ -92,7 +92,7 @@ export const sendExamDegreesNotification = (data) => {
   
   // Format the message with exam results
   const formatMessage = (examData) => {
-    const { studentName, parentNumber, obtainedScore, totalScore, subjectName } = examData;
+    const { studentName, obtainedScore, totalScore, subjectName } = examData;
     
     return `*Exam Results Notification* 📚
 
