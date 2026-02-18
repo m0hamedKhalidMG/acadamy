@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // src/components/AttendanceReport.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import {
@@ -344,17 +345,17 @@ const handleScan = async (e) => {
   // Effects
   useEffect(() => {
     fetchGroups();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => timeoutsRef.current.forEach(clearTimeout);
   }, []);
 
   useEffect(() => {
     if (filters.groupCode) fetchDaily();
-  }, [fetchDaily, filters.date, filters.groupCode]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.date, filters.groupCode]);
 
   useEffect(() => {
     if (filters.groupCode) fetchMonthly();
-  }, [filters.month, filters.year, filters.groupCode, fetchMonthly]);
+  }, [filters.month, filters.year, filters.groupCode]);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
